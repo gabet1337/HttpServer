@@ -10,6 +10,7 @@
 
 # Folders #
 .settings
+servicesTest
 
 # Eclipse bloat #
 .project
