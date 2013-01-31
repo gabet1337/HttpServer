@@ -32,7 +32,7 @@ public class HTMLFolderBuilder implements FolderBuilder {
                     "<table>" +
                     "<tr> <th>Name</th><th>Size</th></tr><tr><th colspan=\"5\"><hr></th></tr>";
         if (index.getParent() != null) {
-            return res + "<tr><td><a href=\"" + index.getParent() + "\">" + index.getParent() + "</a></td><td align=\"right\">  - </td></tr>";
+            return res + "<tr><td><a href=\"" + index.getParent() + "\">" + ".." + "</a></td><td align=\"right\">  - </td></tr>";
         } else {
             return res;
         }

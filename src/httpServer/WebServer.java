@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import services.*;
+
 public class WebServer implements HttpServer {
 
     private int port;
@@ -61,14 +63,11 @@ public class WebServer implements HttpServer {
                 connection.shutdownInput(); // ignore the rest
                 log(connection, request);
 
-                processRequest(request);
+                if (request != null)
+                    processRequest(request);
 
                 print.flush();
-                
-                //if (connection!=null) 
-                //    connection.close(); 
-                //System.exit(0);
-                
+
             } catch (IOException e) { 
                 System.err.println(e); 
             }
@@ -82,42 +81,52 @@ public class WebServer implements HttpServer {
     }
 
 
-    void processRequest(String request) throws IOException {
+    boolean processRequest(String request) throws IOException {           
         
-        if (!request.startsWith("GET") || !(request.endsWith("HTTP/1.0") || request.endsWith("HTTP/1.1")) || request.charAt(4)!='/') {
-            errorReport(print, connection, "400", "Bad Request", "Your browser sent a bad request");
-        } else {
-            String req = request.substring(4, request.length()-9).trim();
-            if (req.indexOf("/.")!=-1 || req.endsWith("~")) {
-                errorReport(print, connection, "403", "Forbidden", "You don't have permission to access the requested URL.");
-            } else {
-                String path = home + "/" + req;
-                File f = new File(path);
-                if (f.isDirectory() && !path.endsWith("/")) {
-                    print.print("HTTP/1.0 301 Moved Permanently\r\nLocation: http://" + connection.getLocalAddress().getHostAddress()+":" + connection.getLocalPort()+req+"/\r\n\r\n");
-                    log(connection, "301 Moved Permanently");
-                } else {
-                    if (f.isDirectory()) { 
-                        path = path + "index.html";
-                        f = new File(path);
-                    }
-                    try { 
-                        InputStream file = new FileInputStream(f);
-                        String contenttype = URLConnection.guessContentTypeFromName(path);
-                        print.print("HTTP/1.0 200 OK\r\n");
-                        
-                        if (contenttype!=null)
-                            print.print("Content-Type: "+contenttype+"\r\n");
-                        
-                        print.print("Date: "+new Date()+"\r\n" + "Server: dDist webServer 1.0\r\n\r\n");
-                        sendFile(file, output); 
-                        log(connection, "200 OK");
-                    } catch (FileNotFoundException e) { 
-                        errorReport(print, connection, "404", "Not Found", "The requested URL was not found on this server.");
-                    }
-                }
-            }
+        if (!request.startsWith("GET") || (!request.endsWith("HTTP/1.0") && !request.endsWith("HTTP/1.1")) || request.charAt(4)!='/')
+            return false;
+
+        String req = request.substring(4, request.length()-9).trim();
+
+        if (req.indexOf("/.")!=-1 || req.endsWith("~")) {
+            errorReport(print, connection, "403", "Forbidden", "No permission to access the requested URL.");
+            return false;
         }
+
+        if (req.equals("/"))
+            req = req + "/index.html";
+        
+        String path = home + "/" + req;
+        File f = new File(path);
+        
+        if (f.isDirectory()) {
+            FolderParser fp = new FolderParser(new HTMLFolderBuilder(f), path);
+            sendHTML(print, connection, "200", fp.parse());
+            return false;
+        }
+        
+        if (req.startsWith("/shell-script.sh")) {
+            sendHTML(print, connection, "200", "yeah baby");
+            return false;
+        }
+        
+        try { 
+            InputStream file = new FileInputStream(f);
+            String contenttype = URLConnection.guessContentTypeFromName(path);
+            print.print("HTTP/1.0 200 OK\r\n");
+
+            if (contenttype!=null)
+                print.print("Content-Type: "+contenttype+"\r\n");
+
+            print.print("Date: "+new Date()+"\r\n" + "Server: dDist webServer 1.0\r\n\r\n");
+            sendFile(file, output); 
+            log(connection, "200 OK");
+        } catch (FileNotFoundException e) { 
+            errorReport(print, connection, "404", "Not Found", "The requested URL was not found on this server.");
+        }
+        
+        return true;
+        
     }
 
     void log(Socket con, String msg) {
@@ -132,6 +141,11 @@ public class WebServer implements HttpServer {
     }
 
 
+    void sendHTML(PrintStream pout, Socket con,
+            String code, String msg) {
+        pout.print(msg);
+    }
+    
     void errorReport(PrintStream pout, Socket con,
             String code, String title, String msg) {
         pout.print(

@@ -8,7 +8,7 @@ public class FolderParser {
     private FolderBuilder builder;
     private File folder;
 
-    public FolderParser(FolderBuilder builder, URI path) {
+    public FolderParser(FolderBuilder builder, String path) {
         this.builder = builder;
         this.folder = new File(path);
     }
