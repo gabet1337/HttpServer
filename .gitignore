@@ -1,6 +1,25 @@
 *.class
 
+# Compilation files #
+*.class
+
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# Folders #
+.settings
+
+# Eclipse bloat #
+.project
+bin/*
+.classpath
+
+# LaTeX stuff #
+*.aux
+*.txt
+*.gz
+*.pdf
+*.log
+
