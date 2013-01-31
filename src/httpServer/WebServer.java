@@ -99,15 +99,20 @@ public class WebServer implements HttpServer {
         String path = home + "/" + req;
         File f = new File(path);
         
+        if (path.endsWith("/") && f.isDirectory()) {
+        	print.print("HTTP/1.0 301 Moved Permanently\r\n");
+        	print.print("Location: " + "http://" + connection.getLocalAddress() + ":" + connection.getLocalPort() + req.substring(0, req.length()-1));
+        	return true;
+        }
+        
         if (f.isDirectory()) {
-            FolderParser fp = new FolderParser(new HTMLFolderBuilder(f), path);
+            FolderParser fp = new FolderParser(new HTMLFolderBuilder(f, req), path);
             sendHTML(print, connection, "200", fp.parse());
             return false;
         }
         
         if (req.startsWith("/shell-script.sh")) {
-            //sendHTML(print, connection, "200", req.replace("/shell-script.sh?INPUT=","").replace("&sendtext=",""));
-            sendHTML(print, connection, "200", ShellScriptExecutor.execute(req.replace("/shell-script.sh?INPUT=","").replace("&sendtext=","")));
+            sendHTML(print, connection, "200", ShellScriptExecutor.execute(req.replace("/shell-script.sh?INPUT=","").replace("&sendtext=","").replace("+", " ")));
             return false;
         }
         
