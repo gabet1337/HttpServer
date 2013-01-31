@@ -1,0 +1,45 @@
+<project name="HttpServer" default="help" basedir=".">
+
+  <property name="srcDir" value="src" />
+  <property name="buildDir" value="build" />
+
+  <path id="classPath">
+    <pathelement location="${buildDir}" />
+  </path>
+
+  <target name="help">
+    <echo>
+      HttpServer targets:
+      build:    builds the source files
+      start:    starts the server at port 8080
+      clean:    deletes the build dir
+    </echo>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${buildDir}" />
+  </target>
+
+  <target name="build" depends="prepare">
+    <javac srcdir="${srcDir}"
+           destdir="${buildDir}"
+           includeantruntime="no">
+      <classpath refid="classPath" />
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="${buildDir}" />
+  </target>
+
+  <target name="start" depends="build">
+    <java fork="yes" classname="httpServer.WebServer">
+      <classpath>
+        <path refid="classPath" />
+      </classpath>
+      <arg value="8080" />
+      <arg value="./FilesToBeServed" />
+    </java>
+  </target>
+
+</project>

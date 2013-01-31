@@ -11,6 +11,8 @@
 # Folders #
 .settings
 servicesTest
+src/test
+build
 
 # Eclipse bloat #
 .project
