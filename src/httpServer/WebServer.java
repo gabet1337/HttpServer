@@ -106,7 +106,8 @@ public class WebServer implements HttpServer {
         }
         
         if (req.startsWith("/shell-script.sh")) {
-            sendHTML(print, connection, "200", "yeah baby");
+            //sendHTML(print, connection, "200", req.replace("/shell-script.sh?INPUT=","").replace("&sendtext=",""));
+            sendHTML(print, connection, "200", ShellScriptExecutor.execute(req.replace("/shell-script.sh?INPUT=","").replace("&sendtext=","")));
             return false;
         }
         
