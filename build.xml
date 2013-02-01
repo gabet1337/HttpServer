@@ -11,7 +11,7 @@
     <echo>
       HttpServer targets:
       build:    builds the source files
-      start:    starts the server at port 8080
+      start:    starts the server at port 8010
       clean:    deletes the build dir
     </echo>
   </target>
@@ -37,7 +37,7 @@
       <classpath>
         <path refid="classPath" />
       </classpath>
-      <arg value="8080" />
+      <arg value="8010" />
       <arg value="./FilesToBeServed" />
     </java>
   </target>
