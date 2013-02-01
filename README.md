@@ -9,4 +9,11 @@ The server can be run using ant:
 ant start
 </pre>
 
+or using make:
+
+<pre>
+make
+make start
+</pre>
+
 This will start a HttpServer at port 8080 at your localhost.
